@@ -1,0 +1,83 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Environment variables
+.env
+*.env
+*.env.*
+.envrc
+
+# Data and persistent storage
+data/*
+!data/.gitkeep
+chroma_db/*
+!chroma_db/.gitkeep
+logs/*
+!logs/.gitkeep
+
+# Docker
+docker-compose.override.yml
+*.dockerignore
+Dockerfile.local
+*.tar
+*.tar.gz
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*.swo
+.DS_Store
+
+# Testing and coverage
+.pytest_cache/
+coverage/
+.coverage
+*.cover
+htmlcov/
+tox/
+nox/
+
+# Logs
+*.log
+*.log.*
+
+# Virtual environment
+pip-selfcheck.json
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# Miscellaneous
+*.bak
+*.tmp
+*.temp
+*~
+node_modules/
+
+# Jenkins-specific
+.jenkins/
+*.jpi
+*.hpi
+
+# Ollama cache
+~/.ollama/
+
+# Byte-compiled / optimized / DLL files
+*.py[cod]
+*$py.class

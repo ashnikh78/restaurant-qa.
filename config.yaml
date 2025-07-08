@@ -1,0 +1,8 @@
+llm_model: "deepseek-llm:7b"
+embed_model: "all-MiniLM-L6-v2"
+data_dir: "./data"
+chroma_persist_dir: "./chroma_db"
+chunk_size: 1000
+chunk_overlap: 150
+retriever_k: 3
+llm_temperature: 0.7
