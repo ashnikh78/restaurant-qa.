@@ -47,9 +47,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(`HTTP ${response.status}: ${await response.text()}`);
             }
             const data = await response.json();
+
+            // Format the response
             const botDiv = document.createElement('div');
             botDiv.className = 'chat-message bot-message';
             const sourcesText = data.sources.length ? data.sources.join(', ') : 'No sources found';
+
+            // Parse the answer to extract intro and list
+            let introText = data.answer;
+            let listItems = [];
+            const listMatch = data.answer.match(/(\d+\.\s[^\d]+)(?=\s*\d+\.\s|$)/g);
+            if (listMatch) {
+                const listStartIndex = data.answer.indexOf(listMatch[0]);
+                introText = data.answer.substring(0, listStartIndex).replace(/^Response:\s*/, '').trim();
+                listItems = listMatch.map(item => item.replace(/^\d+\.\s/, '').trim());
+            }
+
+            // Build HTML for response
+            let responseHtml = `<strong>LoanBot:</strong> `;
+            if (introText) {
+                responseHtml += `<p>${introText}</p>`;
+            }
+            if (listItems.length) {
+                responseHtml += `<ol class="response-list" aria-label="Steps to assist with your loan application">`;
+                listItems.forEach(item => {
+                    responseHtml += `<li>${item}</li>`;
+                });
+                responseHtml += `</ol>`;
+            }
+            responseHtml += `<small>Sources: ${sourcesText}</small>`;
+            botDiv.innerHTML = responseHtml;
+
+            // Add speech controls
             const controlPanel = document.createElement('div');
             controlPanel.className = 'speech-controls';
             controlPanel.innerHTML = `
@@ -57,7 +86,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <button class="speech-btn pause-btn" aria-label="Pause speech" disabled>⏸️</button>
                 <button class="speech-btn stop-btn" aria-label="Stop speech" disabled>⏹️</button>
             `;
-            botDiv.innerHTML = `<strong>LoanBot:</strong> ${data.answer}<br><small>Sources: ${sourcesText}</small>`;
             botDiv.appendChild(controlPanel);
             chatMessages.appendChild(botDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;

@@ -7,54 +7,13 @@
     <meta name="keywords" content="loan, lending, Q&A, document upload, AI assistant, chat, HDB Financial Services">
     <title>HDB Financial Services Q&A</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap">
-    <link rel="stylesheet" href="/static/css/style.css?v=1.0">
-    <!-- Verify ResponsiveVoice API key (Gm1WrzK2) or load from environment variable in script.js -->
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=Gm1WrzK2"></script>
-    <script>
-        async function checkHealth(retries = 5, delay = 3000) {
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch('/health');
-                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                    const data = await response.json();
-                    if (data.status === 'unhealthy') {
-                        const statusDiv = document.createElement('div');
-                        statusDiv.className = 'status-message status-error';
-                        statusDiv.innerHTML = '❌ AI assistant is unavailable. Please try again later or contact support.';
-                        document.getElementById('chatMessages')?.appendChild(statusDiv);
-                    }
-                    return;
-                } catch (error) {
-                    console.error(`Health check attempt ${i + 1} failed:`, error);
-                    if (i === retries - 1) {
-                        const statusDiv = document.createElement('div');
-                        statusDiv.className = 'status-message status-error';
-                        statusDiv.innerHTML = '❌ Failed to connect to AI assistant. Check your network or contact support.';
-                        document.getElementById('chatMessages')?.appendChild(statusDiv);
-                    }
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        }
-
-        window.addEventListener('load', () => {
-            if (!window.responsiveVoice) {
-                console.error('ResponsiveVoice failed to load. Verify API key or network connection.');
-                const statusDiv = document.createElement('div');
-                statusDiv.className = 'status-message status-error';
-                statusDiv.innerHTML = '❌ Text-to-speech is unavailable. Please check your internet connection or contact support.';
-                document.getElementById('chatMessages')?.appendChild(statusDiv);
-            }
-            checkHealth();
-            document.getElementById('footerYear').textContent = new Date().getFullYear();
-        });
-    </script>
+    <link rel="stylesheet" href="/static/css/style.css?v=1.1">
     <script src="/static/js/script.js" defer></script>
 </head>
 <body>
     <div class="container">
         <header class="top-bar">
-            <button class="menu-btn" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+            <button class="menu-btn" id="menu-btn" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
                 <span class="menu-icon">☰</span>
             </button>
             <h1 class="top-bar-title">HDB Financial Services Q&A</h1>
@@ -125,8 +84,10 @@
                         aria-label="Enter your question here"
                         required
                     ></textarea>
-                    <button type="submit" class="btn primary-btn" id="submit-btn">Send</button>
-                    <button type="button" class="btn voice-btn" id="voiceBtn" aria-label="Toggle voice input">🎙️</button>
+                    <div class="chat-input-controls">
+                        <button type="submit" class="btn primary-btn" id="submit-btn">Send</button>
+                        <button type="button" class="btn voice-btn" id="voiceBtn" aria-label="Toggle voice input">🎙️</button>
+                    </div>
                 </form>
             </section>
         </main>
@@ -147,6 +108,7 @@
                 <li>Open the sidebar to upload loan documents.</li>
                 <li>Resize the sidebar by dragging for comfort.</li>
                 <li>Chat or use voice to ask about loans!</li>
+                <li>Use play, pause, or stop buttons to control spoken responses.</li>
             </ol>
             <button class="btn close-btn" aria-label="Close welcome tooltip">Got it!</button>
         </div>
