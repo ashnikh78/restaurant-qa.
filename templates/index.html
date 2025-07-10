@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="HDB Financial Services Q&A System - Chat with our AI to get instant answers about your loans">
+    <meta name="keywords" content="loan, lending, Q&A, document upload, AI assistant, chat, HDB Financial Services">
+    <title>HDB Financial Services Q&A</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600&display=swap">
+    <link rel="stylesheet" href="/static/css/style.css?v=1.0">
+    <!-- Verify ResponsiveVoice API key (Gm1WrzK2) or load from environment variable in script.js -->
+    <script src="https://code.responsivevoice.org/responsivevoice.js?key=Gm1WrzK2"></script>
+    <script>
+        async function checkHealth(retries = 5, delay = 3000) {
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch('/health');
+                    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                    const data = await response.json();
+                    if (data.status === 'unhealthy') {
+                        const statusDiv = document.createElement('div');
+                        statusDiv.className = 'status-message status-error';
+                        statusDiv.innerHTML = '❌ AI assistant is unavailable. Please try again later or contact support.';
+                        document.getElementById('chatMessages')?.appendChild(statusDiv);
+                    }
+                    return;
+                } catch (error) {
+                    console.error(`Health check attempt ${i + 1} failed:`, error);
+                    if (i === retries - 1) {
+                        const statusDiv = document.createElement('div');
+                        statusDiv.className = 'status-message status-error';
+                        statusDiv.innerHTML = '❌ Failed to connect to AI assistant. Check your network or contact support.';
+                        document.getElementById('chatMessages')?.appendChild(statusDiv);
+                    }
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        }
+
+        window.addEventListener('load', () => {
+            if (!window.responsiveVoice) {
+                console.error('ResponsiveVoice failed to load. Verify API key or network connection.');
+                const statusDiv = document.createElement('div');
+                statusDiv.className = 'status-message status-error';
+                statusDiv.innerHTML = '❌ Text-to-speech is unavailable. Please check your internet connection or contact support.';
+                document.getElementById('chatMessages')?.appendChild(statusDiv);
+            }
+            checkHealth();
+            document.getElementById('footerYear').textContent = new Date().getFullYear();
+        });
+    </script>
+    <script src="/static/js/script.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <header class="top-bar">
+            <button class="menu-btn" aria-label="Toggle sidebar" aria-expanded="false" aria-controls="sidebar">
+                <span class="menu-icon">☰</span>
+            </button>
+            <h1 class="top-bar-title">HDB Financial Services Q&A</h1>
+            <div class="top-bar-actions">
+                <button class="help-btn" aria-label="Show help tooltip">?</button>
+                <button class="theme-toggle" aria-label="Switch to dark mode" type="button">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Document Manager</h2>
+                <button class="close-sidebar" aria-label="Close sidebar">
+                    <span aria-hidden="true">✕</span>
+                </button>
+            </div>
+            <div class="resize-handle" aria-label="Resize sidebar" role="separator"></div>
+            <div class="sidebar-content">
+                <section class="card upload-card" role="region" aria-label="Upload loan documents">
+                    <div class="card-header">
+                        <h3>Upload Documents</h3>
+                        <button class="toggle-btn" aria-expanded="true" aria-controls="upload-content" aria-label="Toggle upload section">
+                            <span class="toggle-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="collapsible" id="upload-content">
+                        <div class="upload-area" id="uploadArea" role="button" tabindex="0" aria-describedby="upload-instructions">
+                            <p id="upload-instructions">Drag and drop files (PDF, DOC, TXT)</p>
+                            <label for="fileInput" class="file-input-label" data-tooltip="Select or drop files to upload">Select Files</label>
+                            <input type="file" id="fileInput" multiple accept=".txt,.md,.pdf,.docx,.doc" aria-hidden="true">
+                        </div>
+                        <div id="fileList" class="file-list" aria-live="polite"></div>
+                        <button class="btn primary-btn" id="uploadBtn" disabled aria-disabled="true">Upload Documents</button>
+                        <div id="uploadStatus" class="status-message" aria-live="assertive"></div>
+                    </div>
+                </section>
+
+                <section class="card documents-card" role="region" aria-label="View uploaded documents">
+                    <div class="card-header">
+                        <h3>Uploaded Documents</h3>
+                        <button class="toggle-btn" aria-expanded="true" aria-controls="documents-content" aria-label="Toggle documents section">
+                            <span class="toggle-icon">▼</span>
+                        </button>
+                    </div>
+                    <div class="collapsible" id="documents-content">
+                        <ul id="documentList" class="document-list" aria-live="polite"></ul>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <main class="main-content">
+            <section class="card chat-card sticky" role="application" aria-label="Chat with the loan assistant">
+                <div class="chat-header">
+                    <h2>Chat with LoanBot</h2>
+                    <button class="btn clear-chat" id="clearChatBtn" aria-label="Clear chat history">Clear Chat</button>
+                </div>
+                <div class="chat-messages" id="chatMessages" role="log" aria-live="polite"></div>
+                <form id="queryForm" role="search" class="chat-input-form">
+                    <textarea 
+                        class="query-input" 
+                        id="queryInput" 
+                        placeholder="Ask LoanBot about loans, payments, or anything else..."
+                        rows="3"
+                        aria-label="Enter your question here"
+                        required
+                    ></textarea>
+                    <button type="submit" class="btn primary-btn" id="submit-btn">Send</button>
+                    <button type="button" class="btn voice-btn" id="voiceBtn" aria-label="Toggle voice input">🎙️</button>
+                </form>
+            </section>
+        </main>
+
+        <button class="fab" aria-label="Open sidebar" id="fab" aria-controls="sidebar">
+            <span class="fab-icon">☰</span>
+        </button>
+    </div>
+    <footer>
+        <p>© <span id="footerYear">2025</span> HDB Financial Services Q&A. All rights reserved.</p>
+    </footer>
+
+    <div class="welcome-tooltip" id="welcomeTooltip" role="dialog" aria-hidden="true">
+        <div class="tooltip-content">
+            <h3>Welcome to HDB Financial Services Q&A!</h3>
+            <p>Get started with LoanBot:</p>
+            <ol>
+                <li>Open the sidebar to upload loan documents.</li>
+                <li>Resize the sidebar by dragging for comfort.</li>
+                <li>Chat or use voice to ask about loans!</li>
+            </ol>
+            <button class="btn close-btn" aria-label="Close welcome tooltip">Got it!</button>
+        </div>
+        <div class="tooltip-overlay"></div>
+    </div>
+</body>
+</html>

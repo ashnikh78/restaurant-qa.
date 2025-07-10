@@ -81,3 +81,6 @@ node_modules/
 # Byte-compiled / optimized / DLL files
 *.py[cod]
 *$py.class
+# Additional Jenkins-specific ignores
+.jenkins/workspace/
+*.xml

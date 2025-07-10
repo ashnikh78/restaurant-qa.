@@ -1,0 +1,11 @@
+
+# Enforce LF line endings for all text files
+* text=auto eol=lf
+
+# Explicitly set LF for specific file types
+*.py text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.sh text eol=lf
+*.groovy text eol=lf
+*.dockerfile text eol=lf
